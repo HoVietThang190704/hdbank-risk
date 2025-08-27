@@ -1,0 +1,11 @@
+services:
+  gateway:
+    build: ./gateway
+    ports: ["3000:3000"]
+    environment:
+      - PYTHON_BASE=http://model:8000
+    depends_on: [model]
+
+  model:
+    build: ./model
+    ports: ["8000:8000"]
