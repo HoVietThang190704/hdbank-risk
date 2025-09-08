@@ -1,11 +1,49 @@
+version: "3.9"
+
 services:
+  model_taiwan:
+    build: ./model
+    container_name: hdbank-risk-model-taiwan
+    ports:
+      - "8001:8000"
+    environment:
+      - ARTIFACTS_DIR=/models
+    volumes:
+      - ./artifacts/taiwan:/models:ro
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8000/v1/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  model_lendingclub:
+    build: ./model
+    container_name: hdbank-risk-model-lc
+    ports:
+      - "8002:8000"
+    environment:
+      - ARTIFACTS_DIR=/models
+    volumes:
+      - ./artifacts/lendingclub:/models:ro
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8000/v1/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
   gateway:
     build: ./gateway
-    ports: ["3000:3000"]
+    container_name: hdbank-risk-gateway
+    ports:
+      - "3000:3000"
     environment:
-      - PYTHON_BASE=http://model:8000
-    depends_on: [model]
-
-  model:
-    build: ./model
-    ports: ["8000:8000"]
+      # tuỳ cách bạn implement gateway:
+      - MODEL_TAIWAN_URL=http://model_taiwan:8000
+      - MODEL_LC_URL=http://model_lendingclub:8000
+      - ENSEMBLE_REFRESH_SEC=600   # làm mới trọng số mỗi 10 phút
+      - ENSEMBLE_STRATEGY=weighted # mặc định 'weighted' (có thể: avg|weighted|tw|lc)
+    depends_on:
+      model_taiwan:
+        condition: service_healthy
+      model_lendingclub:
+        condition: service_healthy

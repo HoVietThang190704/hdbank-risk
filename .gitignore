@@ -71,3 +71,36 @@ logs/
 # Temporary files
 *.tmp
 *.temp
+
+# ================= ML & Data (bổ sung) =================
+# Thư mục artifacts sinh ra sau train (model, calibrator, scaler...)
+artifacts/
+
+# Dữ liệu thô / đã merge (không version bằng git; nên lưu ở storage ngoài hoặc DVC)
+data/
+!data/README.md
+!data/*.sample.*
+
+# File mô hình / đối tượng pickle (tránh commit nhầm)
+*.pkl
+*.joblib
+
+# Notebook checkpoints
+.ipynb_checkpoints/
+
+# Coverage / test cache
+.coverage
+coverage.xml
+htmlcov/
+.pytest_cache/
+
+# Reports tạm
+reports/
+
+# Lockfile tạm của pip-tools (nếu dùng)
+*.requirements.txt
+
+# Local environment variables (phòng hở secrets nếu đặt riêng)
+.env.*.local
+
+
