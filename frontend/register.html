@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Đăng nhập/Đăng ký</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg-1:#05060a; --bg-2:#0a0b14; --line:#1b2a4a; --text:#e6f0ff; --muted:#9fb2d0;
+      --brand:#69f0ae; --brand-2:#00e5ff; --danger:#ff5c8a; --ok:#7ef6a0;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family:Outfit,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      color:var(--text); background: radial-gradient(1200px 800px at 80% -10%, #1a2a6c33, transparent 60%),
+                 radial-gradient(900px 600px at -10% 100%, #00d4ff22, transparent 60%),
+                 linear-gradient(180deg, var(--bg-1), var(--bg-2));
+      overflow:auto;
+    }
+    /* Animated grid */
+    .grid{ position:fixed; inset:0; pointer-events:none; opacity:.12; background-size: 48px 48px;
+      background-image: linear-gradient(to right, var(--line) 1px, transparent 1px),
+                       linear-gradient(to bottom, var(--line) 1px, transparent 1px);
+      mask: radial-gradient(ellipse at 50% -30%, black 20%, transparent 70%);
+      animation: pan 40s linear infinite; }
+    @keyframes pan{ from{background-position:0 0,0 0} to{background-position:480px 0,0 480px} }
+
+    .wrap{min-height:100%; display:grid; place-items:center; padding:32px}
+
+    .card{ position:relative; width:min(1100px, 96vw); display:grid; grid-template-columns: 1.05fr 1fr; gap:0; border-radius:24px; overflow:hidden;
+      background: linear-gradient(180deg, #0c1020aa, #0a0d1bdd); box-shadow: 0 10px 40px #0008, inset 0 1px 0 #fff2; border: 1px solid #ffffff22; }
+    @media (max-width: 980px){ .card{ grid-template-columns:1fr; } .art{ display:none } }
+
+    .art{ position:relative; padding:32px; background:
+        radial-gradient(600px 300px at 80% 10%, #00e5ff22, transparent 70%),
+        radial-gradient(500px 260px at 10% 20%, #69f0ae22, transparent 70%),
+        linear-gradient(180deg,#0a1024,#090d1a);
+      border-right:1px solid #ffffff15; display:flex; flex-direction:column; justify-content:space-between; }
+    .badge{ display:inline-flex; align-items:center; gap:10px; padding:10px 14px; border-radius:999px; font-weight:600; letter-spacing:.3px;
+      background:linear-gradient(135deg, #00e5ff33, #69f0ae33); border:1px solid #ffffff30; box-shadow: inset 0 0 12px #00e5ff20; }
+    .badge .dot{ width:8px; height:8px; border-radius:50%; background:conic-gradient(from 0deg, var(--brand), var(--brand-2)); box-shadow:0 0 12px #00e5ff88 }
+    h1.title{font-size:44px; line-height:1.05; margin:18px 0 10px; letter-spacing:.2px}
+    p.sub{color:var(--muted); margin:0 0 18px; max-width:36ch}
+    .glow{ position:absolute; inset:auto auto -120px -120px; width:400px; height:400px; filter:blur(80px); opacity:.6;
+      background: radial-gradient(closest-side, #00e5ff66, transparent), radial-gradient(closest-side, #69f0ae55, transparent); transform: rotate(12deg); }
+
+    /* Right side auth */
+    .auth{ padding:28px; position:relative; display:flex; flex-direction:column; gap:18px; }
+    .stage{ position:relative; min-height:420px; }
+    .panel{ position:absolute; inset:0; display:flex; flex-direction:column; gap:14px; opacity:0; transform: translateY(12px); pointer-events:none; transition: opacity .28s ease, transform .28s ease; }
+    .panel.active{ opacity:1; transform: translateY(0); pointer-events:auto }
+
+    label .lab{ display:block; font-size:13px; color:#cfe2ff; margin:2px 0 6px }
+    .input{ display:flex; align-items:center; gap:10px; border:1px solid #ffffff1f; background: #0c1222; color:#e9f2ff; border-radius:12px; padding:12px 14px; outline:none; transition: box-shadow .2s, border-color .2s; }
+    .input:focus-within{ box-shadow:0 0 0 3px #00e5ff40; border-color:#00e5ff66 }
+    .input input{ flex:1; border:none; outline:none; background:transparent; color:inherit; font-size:15px }
+    .input button.icon{ background:transparent; border:none; color:#bbd5ff; cursor:pointer; padding:4px; border-radius:8px }
+    .input button.icon:hover{ color:white; background:#ffffff10 }
+    .hint{ font-size:12px; color:#a8bedf; margin-top:6px }
+
+    .actions{ display:flex; align-items:center; justify-content:space-between; margin-top:6px }
+    .btn{ appearance:none; border:none; cursor:pointer; padding:12px 16px; border-radius:12px; font-weight:700; letter-spacing:.2px; color:#092236;
+      background:linear-gradient(135deg,var(--brand),var(--brand-2)); box-shadow:0 8px 28px #00e5ff3a, inset 0 0 0 1px #ffffff80; transition: transform .06s ease }
+    .btn:active{ transform: translateY(1px) }
+    .mutelink{ background:transparent; border:none; color:#b7c9e6; text-decoration:underline; cursor:pointer; font-size:13px }
+
+    /* socials (kept) */
+    .divider{ display:flex; align-items:center; gap:12px; margin:8px 0 }
+    .divider::before,.divider::after{ content:""; height:1px; flex:1; background:linear-gradient(90deg, transparent,#ffffff2a, transparent) }
+    .socials{ display:grid; grid-template-columns:1fr 1fr; gap:12px }
+    .social{ background:#0c1222; border:1px solid #ffffff20; color:#e8f2ff; padding:12px 14px; border-radius:12px; cursor:pointer; font-weight:600; }
+
+    /* Password strength */
+    .meter{ height:8px; border-radius:999px; background:#ffffff14; overflow:hidden; margin-top:6px }
+    .meter > i{ display:block; height:100%; width:18%; background:linear-gradient(90deg,#ff5c8a,#ffd166,#69f0ae); transform-origin:left; transition: transform .25s }
+  </style>
+</head>
+<body>
+  <div class="grid" aria-hidden="true"></div>
+  <div class="wrap">
+    <section class="card" role="dialog" aria-labelledby="title">
+      <!-- Left: art & copy (kept from original) -->
+      <aside class="art">
+        <div>
+          <span class="badge" aria-hidden="true"><span class="dot"></span> Hackation 2025</span>
+          <h1 id="title" class="title">Welcome to Hackation</h1>
+          <p class="sub">Build fast, break limits. Your account unlocks live workshops, challenges, and ship-night leaderboards.</p>
+        </div>
+        <div class="foot">
+          <strong>Pro tip:</strong> Use a passphrase (e.g., <span style="font-family:'JetBrains Mono',monospace">lava-rocket-parade!</span>) for stronger security.
+        </div>
+        <div class="glow" aria-hidden="true"></div>
+      </aside>
+
+      <!-- Right: auth with panels (login default, bottom link to switch) -->
+      <main class="auth">
+        <div class="stage" id="stage">
+          <!-- LOGIN PANEL -->
+          <form id="panel-login" class="panel active" aria-label="Đăng nhập">
+            <h2 style="margin:0 0 8px">Log in</h2>
+            <div>
+              <label>
+                <span class="lab">Email</span>
+                <div class="input"><input type="email" placeholder="you@email.com" required autocomplete="email" /></div>
+              </label>
+            </div>
+            <div>
+              <label>
+                <span class="lab">Password</span>
+                <div class="input">
+                  <input id="login-pass" type="password" placeholder="••••••••" required autocomplete="current-password" />
+                  <button class="icon" type="button" aria-label="Show password" data-toggle="login-pass">👁️</button>
+                </div>
+                <div class="hint"><button class="mutelink" type="button" id="forgot">Forgot password?</button></div>
+              </label>
+            </div>
+            <div class="actions">
+              <label style="display:flex; align-items:center; gap:10px; font-size:13px; color:#cfe2ff">
+                <input type="checkbox" /> Keep me signed in
+              </label>
+              <button class="btn" type="submit">Enter the Arena</button>
+            </div>
+            <div class="divider"><span style="font-size:12px;color:#b7c9e6">or</span></div>
+            <div class="socials">
+              <button class="social" type="button">Continue with GitHub</button>
+              <button class="social" type="button">Continue with Google</button>
+            </div>
+            <div class="hint" style="text-align:center; margin-top:10px">Chưa có tài khoản? <button class="mutelink" type="button" id="goSignUp">Đăng ký</button></div>
+          </form>
+
+          <!-- SIGNUP PANEL -->
+          <form id="panel-signup" class="panel" aria-label="Đăng ký">
+            <h2 style="margin:0 0 8px">Sign up</h2>
+            <div class="row" style="display:grid; grid-template-columns:1fr 1fr; gap:12px">
+              <label>
+                <span class="lab">Full name</span>
+                <div class="input"><input type="text" placeholder="Nguyen Van A" required autocomplete="name" /></div>
+              </label>
+              <label>
+                <span class="lab">Handle</span>
+                <div class="input"><input type="text" placeholder="@yourhandle" required pattern="^[A-Za-z0-9_\.\-]{3,16}$" title="3–16 chars: letters, numbers, underscore, dot, dash" /></div>
+              </label>
+            </div>
+            <div>
+              <label>
+                <span class="lab">Email</span>
+                <div class="input"><input type="email" placeholder="you@email.com" required autocomplete="email" /></div>
+              </label>
+            </div>
+            <div class="row" style="display:grid; grid-template-columns:1fr 1fr; gap:12px">
+              <label>
+                <span class="lab">Create password</span>
+                <div class="input">
+                  <input id="sp1" type="password" placeholder="Min. 8 characters" required autocomplete="new-password" />
+                  <button class="icon" type="button" aria-label="Show password" data-toggle="sp1">👁️</button>
+                </div>
+                <div class="meter" aria-hidden="true"><i id="meter"></i></div>
+                <div class="hint" id="strengthText">Use upper, lower, number & symbol</div>
+              </label>
+              <label>
+                <span class="lab">Confirm password</span>
+                <div class="input">
+                  <input id="sp2" type="password" placeholder="Repeat password" required autocomplete="new-password" />
+                  <button class="icon" type="button" aria-label="Show password" data-toggle="sp2">👁️</button>
+                </div>
+                <div class="hint" id="matchMsg"></div>
+              </label>
+            </div>
+            <div class="actions">
+              <label style="display:flex; align-items:center; gap:10px; font-size:13px; color:#cfe2ff">
+                <input type="checkbox" required /> I agree to the<a href="#" class="mutelink" style="text-decoration:none">Terms</a>
+              </label>
+              <button class="btn" type="submit">Create my account</button>
+            </div>
+            <div class="hint" style="text-align:center; margin-top:10px">Đã có tài khoản? <button class="mutelink" type="button" id="goLogin">Đăng nhập</button></div>
+          </form>
+        </div>
+      </main>
+    </section>
+  </div>
+
+  <script>
+    // Elements
+    const stage = document.getElementById('stage');
+    const loginPanel = document.getElementById('panel-login');
+    const signupPanel = document.getElementById('panel-signup');
+    const goSignUp = document.getElementById('goSignUp');
+    const goLogin = document.getElementById('goLogin');
+
+    // Switching with animated height
+    function switchPanels(fromEl, toEl){
+      const h = stage.offsetHeight; stage.style.height = h + 'px';
+      fromEl.classList.remove('active'); toEl.classList.add('active');
+      requestAnimationFrame(()=>{ stage.style.transition='height .28s ease'; stage.style.height = Math.max(toEl.offsetHeight, 380) + 'px'; });
+      stage.addEventListener('transitionend', function handler(e){ if(e.propertyName==='height'){ stage.style.height=''; stage.style.transition=''; stage.removeEventListener('transitionend', handler);} });
+    }
+    goSignUp.addEventListener('click', ()=> switchPanels(loginPanel, signupPanel));
+    goLogin.addEventListener('click', ()=> switchPanels(signupPanel, loginPanel));
+
+    // Show/Hide password buttons
+    document.querySelectorAll('[data-toggle]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-toggle');
+        const inp = document.getElementById(id);
+        if(!inp) return; const show = inp.getAttribute('type') === 'password';
+        inp.setAttribute('type', show ? 'text' : 'password');
+        btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+      });
+    });
+
+    // Password strength + match
+    const sp1 = document.getElementById('sp1');
+    const meter = document.getElementById('meter');
+    const strengthText = document.getElementById('strengthText');
+    const sp2 = document.getElementById('sp2');
+    const matchMsg = document.getElementById('matchMsg');
+
+    function score(v){ let s=0; if(/[a-z]/.test(v)) s++; if(/[A-Z]/.test(v)) s++; if(/\d/.test(v)) s++; if(/[^\w\s]/.test(v)) s++; if(v.length>=8) s++; return s; }
+    function update(){
+      if(!sp1) return; const v = sp1.value || ''; const sc = score(v); const pct = Math.max(0, Math.min(100, sc/5*100));
+      meter && (meter.style.transform = 'scaleX('+(pct/100)+')');
+      const labels = ['Too weak','Weak','Okay','Strong','Rock solid'];
+      strengthText && (strengthText.textContent = labels[Math.max(0, sc-1)] || '');
+      if(sp2){ const match = v && sp2.value && v===sp2.value; matchMsg.textContent = sp2.value ? (match?'Passwords match ✓':'Passwords do not match') : ''; matchMsg.style.color = match ? 'var(--ok)' : 'var(--danger)'; }
+    }
+    sp1 && sp1.addEventListener('input', update);
+    sp2 && sp2.addEventListener('input', update);
+
+    // Demo only: prevent submit
+    document.querySelectorAll('form').forEach(f => f.addEventListener('submit', e => { e.preventDefault(); alert('Demo only ✨'); }));
+  </script>
+</body>
+</html>
