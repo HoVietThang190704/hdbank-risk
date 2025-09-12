@@ -103,4 +103,16 @@ reports/
 # Local environment variables (phòng hở secrets nếu đặt riêng)
 .env.*.local
 
+# Frontend build
+frontend/web/build/
+frontend/web/node_modules/
 
+# .NET
+desktop/*/bin/
+desktop/*/obj/
+desktop/*.suo
+desktop/*.user
+desktop/.vs/
+
+# Shared
+shared/temp/

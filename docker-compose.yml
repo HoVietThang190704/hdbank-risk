@@ -1,8 +1,6 @@
-version: "3.9"
-
 services:
   model_taiwan:
-    build: ./model
+    build: ./backend/model
     container_name: hdbank-risk-model-taiwan
     ports:
       - "8001:8000"
@@ -17,7 +15,7 @@ services:
       retries: 10
 
   model_lendingclub:
-    build: ./model
+    build: ./backend/model
     container_name: hdbank-risk-model-lc
     ports:
       - "8002:8000"
@@ -32,7 +30,7 @@ services:
       retries: 10
 
   gateway:
-    build: ./gateway
+    build: ./backend/gateway
     container_name: hdbank-risk-gateway
     ports:
       - "3000:3000"
